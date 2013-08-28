@@ -98,8 +98,8 @@ class Control:
     Control.bus.write_i2c_block_data(ADDR_I2C, addr, vals)
 
 
+# run this script to try out the vortex routine
 if __name__ == "__main__":
-  
   def vortex(out):
     c = Control()
     bright = [c.intensities[i] for i in range(0, 18, 3)]
@@ -107,17 +107,17 @@ if __name__ == "__main__":
     glow = range(6)
     if not out: glow.reverse()
     while True:
-	  for cir in range(6):
-	    for led in c.circle(cir): led.lit(c.intensities[glow[cir]])
-	    glow[cir] -= 1
-	    if glow[cir] == -1: glow[cir] = 5
-	  c.update()
-	  time.sleep(0.1)
+      for cir in range(6):
+        for led in c.circle(cir): led.lit(c.intensities[glow[cir]])
+        glow[cir] -= 1
+        if glow[cir] == -1: glow[cir] = 5
+      c.update()
+      time.sleep(0.1)
 
   # execute incoming
-  try:
-    vortex(False)
+  try: vortex(False)
   except:
+    # turn off all leds
     for led in Control.leds: led.lit(0)
     Control().update()
     
