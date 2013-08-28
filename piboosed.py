@@ -50,7 +50,7 @@ class Led:
 
   def lit(self, value):
     """set led to specified value"""
-    Led.light[self.index] = gamma[value]
+    Led.light[self.index] = Led.gamma[value]
 
   def status(self):
     """get status of led"""
@@ -82,7 +82,12 @@ class Control:
     self.__write(ADDR_BANK, [0xff, 0xff, 0xff])
 
   def __getitem__(self, idx): return Control.leds[idx]
-    
+  
+  def all(self, value):
+    """set all leds to value"""
+    map(lambda led: led.lit(value), Control.leds)
+    self.update()
+
   def arm(self, arm):
     """get an arm of leds, indexed 0 from top going clockwise"""
     idx = arm * 6
@@ -96,12 +101,10 @@ class Control:
     """get the led with the given color on the specified arm"""
     return Control.leds[arm*6 + Control.colors.index(color)]
 
-  def update(self):
-    """update the leds against the controller"""
-    #[self.__write(led.addr, [led.lit]) for led in Control.leds]
-    self.__write(ADDR_LED0, Led.light)
-    self.__update()
-
+  def off(self):
+    """turn all leds off"""
+    self.all(0)
+    
   def status(self):
     """show a status of all leds"""
     print ("%s" * 6) % tuple([s.rjust(12) for s in Control.colors])
@@ -109,6 +112,12 @@ class Control:
       print "arm%d:" % arm,
       print ("%s" * 6) % tuple([led.status().ljust(12) for led in self.arm(arm)])
     print ""
+
+  def update(self):
+    """update the leds against the controller"""
+    #[self.__write(led.addr, [led.lit]) for led in Control.leds]
+    self.__write(ADDR_LED0, Led.light)
+    self.__update()
 
   def __update(self):
     """perform an update to commit transaction"""
@@ -122,23 +131,28 @@ class Control:
 # run this script to try out the vortex routine
 if __name__ == "__main__":
   def vortex(out):
+    # get controller
     c = Control()
-    bright = [c.intensities[i] for i in range(0, 18, 3)]
-    bright[0] = 0
-    glow = range(6)
-    if not out: glow.reverse()
+    
+    # retrieve 6 intensities from gradient array; zero out first intensity
+    glow = [c.intensities[i] for i in range(0, 18, 3)]
+    glow[0] = 0
+    
+    # set direction of movement
+    move = (lambda x: x.insert(0, x.pop(5))) if out else (lambda x: x.append(x.pop(0)))
+    
     while True:
+      # for each circle
       for cir in range(6):
-        for led in c.circle(cir): led.lit(c.intensities[glow[cir]])
-        glow[cir] -= 1
-        if glow[cir] == -1: glow[cir] = 5
+        # set all leds (in circle) to intensity in glow
+        for led in c.circle(cir): led.lit(glow[cir])
+      
+      # update
+      move(glow)
       c.update()
       time.sleep(0.1)
 
   # execute incoming
   try: vortex(False)
-  except:
-    # turn off all leds
-    for led in Control.leds: led.lit(0)
-    Control().update()
+  except: Control().off() # turn off all leds
     
