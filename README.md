@@ -1,4 +1,4 @@
 piboosed
 ========
 
-python library for Pomoroni PiGlow
+python library for Pimoroni PiGlow

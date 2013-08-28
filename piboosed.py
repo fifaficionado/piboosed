@@ -1,6 +1,6 @@
 #!/usr/bin/python
 """
-A library for controlling Pomoroni PiGlow.
+A library for controlling Pimoroni PiGlow.
 
 classes:
 Led     - encapsulation of single led, 1-18
