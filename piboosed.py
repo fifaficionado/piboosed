@@ -3,8 +3,8 @@
 A library for controlling Pomoroni PiGlow.
 
 classes:
-Led		- encapsulation of single led, 1-18
-Control	- controller for accessing and updating leds
+Led     - encapsulation of single led, 1-18
+Control - controller for accessing and updating leds
 """
 
 import RPi.GPIO as rpi
@@ -126,7 +126,6 @@ class Control:
   def __write(self, addr, vals):
     """write a list of values starting at address"""
     Control.bus.write_i2c_block_data(ADDR_I2C, addr, vals)
-
 
 # run this script to try out the vortex routine
 if __name__ == "__main__":
